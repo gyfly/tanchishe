@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			table,tr,td{
+				border: 1px solid #000;
+			}
+			td{
+				width: 18px;
+				height: 18px;
+			}
+			.red{
+				background-color: red;
+			}
+			.blue{
+				background-color: blue;
+			}
+		</style>
+	</head>
+	<body>
+		<table id="table">
+			
+		</table>
+		<script type="text/javascript">
+			var table=document.getElementById('table');
+			var maxtable=20;//最大表格
+			var tds=[];//把表格都存为二维数组，方便蛇身读取
+			//console.log(tds);
+			for (var i=0;i<maxtable;i++) {
+				var tr=document.createElement('tr');
+				
+//				console.log(tr);//tr循环一次，td循环20次
+				//声明一个空数组，用来存放里面的td
+				var thisrowid=[];
+//				console.log(thisrowid);//20个td
+				for (var j=0;j<maxtable;j++) {
+					var td=document.createElement('td');
+					console.log(td);//20次列
+					
+					tr.appendChild(td);
+					//把td追加到里面行的数组
+					thisrowid.push(td);
+				}
+				//console.log(thisrowid);//一行20列
+				//把行和列的数组追加到一个新的数组
+				tds.push(thisrowid);
+				
+//				console.log(tds);//20行20列
+				table.appendChild(tr);
+			}
+			//画出蛇
+			tds[4][4].className='red';
+			tds[4][5].className='red';
+			tds[4][6].className='red';
+			tds[4][7].className='red';
+			function Snake(){
+				this.bodyArr=[
+				{x:4,y:8},
+				{x:4,y:7},
+				{x:4,y:6},
+				{x:4,y:5},];
+				
+				this.bingEvent();
+				this.direction='right';		
+			}
+			
+			//让蛇动起来
+			Snake.prototype.move=function(){
+				this.bodyArr.pop();//尾部删除
+				switch (this.direction){
+					case 'right':
+					this.bodyArr.unshift(
+						{
+						x:this.bodyArr[0].x,
+						y:this.bodyArr[0].y+1
+						})
+						break;
+						case 'up':
+					this.bodyArr.unshift(
+						{
+						x:this.bodyArr[0].x-1,
+						y:this.bodyArr[0].y
+						})
+						break;
+						case 'down':
+					this.bodyArr.unshift(
+						{
+						x:this.bodyArr[0].x+1,
+						y:this.bodyArr[0].y
+						})
+						break;
+						case 'left':
+					this.bodyArr.unshift(
+						{
+						x:this.bodyArr[0].x,
+						y:this.bodyArr[0].y-1
+						})
+						break;
+						
+					default:		
+				}
+				  if (this.bodyArr[0].x == food.foodx && this.bodyArr[0].y == food.foody) {
+              // 食物改变位置
+              food.change();
+              // 小蛇自己长大一个td
+              this.growup();
+          }
+
+				
+			}
+			Snake.prototype.render=function(){
+				//// 每一秒清空所有的className 的名字,清空跑过的痕迹
+              for (var i=0;i<maxtable;i++) {
+              	for (var j=0;j<maxtable;j++) {
+              		tds[i][j].className='';
+              	}
+              }
+              for (var i=0;i<this.bodyArr.length;i++) {
+              	tds[this.bodyArr[i].x][this.bodyArr[i].y].className="blue";
+              	
+              }
+              
+			}
+			//让蛇长大
+			Snake.prototype.growup=function(){
+				switch (this.direction){
+					case 'right':
+					this.bodyArr.unshift(
+						{
+						x:this.bodyArr[0].x,
+						y:this.bodyArr[0].y+1
+						})
+						break;
+						case 'up':
+					this.bodyArr.unshift(
+						{
+						x:this.bodyArr[0].x-1,
+						y:this.bodyArr[0].y
+						})
+						break;
+						case 'down':
+					this.bodyArr.unshift(
+						{
+						x:this.bodyArr[0].x+1,
+						y:this.bodyArr[0].y
+						})
+						break;
+						case 'left':
+					this.bodyArr.unshift(
+						{
+						x:this.bodyArr[0].x,
+						y:this.bodyArr[0].y-1
+						})
+						break;
+						
+					default:		
+				}
+				 if (this.bodyArr[0].x == food.foodx && this.bodyArr[0].y == food.foody) {
+              // 食物改变位置
+              food.change();
+              // 小蛇自己长大一个td
+              this.growup();
+          }
+
+			}
+			Snake.prototype.bingEvent=function(){
+				var self=this;//事件需要把this赋给另一个变量
+				document.onkeydown=function(event){
+					event=event||window.event;
+					switch (event.keyCode){
+						case 37:
+						if(self.direction=='right'){
+							return;
+						}
+						self.direction='left';
+							break;
+							case 38:
+						if(self.direction=='down'){
+							return;
+						}
+						self.direction='up';
+							break;
+							case 39:
+						if(self.direction=='left'){
+							return;
+						}
+						self.direction='right';
+							break;
+							case 40:
+						if(self.direction=='up'){
+							return;
+						}
+						self.direction='down';
+							break;
+							
+						default:
+							
+					}
+				}
+			}
+			//创建食物
+			function Food(foodx,foody){
+				//调用食物自己的改变方法
+				
+				this.change();
+			}
+			//渲染事物
+			Food.prototype.render=function(){
+				tds[this.foodx][this.foody].className='red';
+			}
+			Food.prototype.change=function(){
+				//随机描绘事物出现的位置
+				this.foodx=parseInt(Math.random()*(maxtable-2));
+				this.foody=parseInt(Math.random()*(maxtable-2));
+				//食物不能出现在自己的身上
+				for (var i=0;i<snake.bodyArr.length;i++) {
+					if(this.foodx==snake.bodyArr[i].x&&this.foody==snake.bodyArr[i].y){
+						this.change();
+					}
+					
+				}
+				
+			}
+			
+			
+			//边界问题
+			var snake=new Snake();
+			var food=new Food();
+
+		var timer=setInterval(function(){
+			if(snake.bodyArr[0].y>maxtable-2||snake.bodyArr[0].x>maxtable-2||snake.bodyArr[0].x<0||snake.bodyArr[0].y<0){
+				clearInterval(timer);
+				alert("gameover");
+			}else{
+				
+				snake.move();
+				snake.render();
+				food.render();
+			}
+			},1000)
+		</script>
+	</body>
+</html>
